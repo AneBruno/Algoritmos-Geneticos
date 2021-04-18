@@ -120,21 +120,21 @@ def crearHijos():
         #print("cromosoma nuevo 2",cromosoma_nuevo_2)
 
         if (random() <= prob_cross): 
-            crosover1=[5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]
-            crosover2=[5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]
+            crossover1=[0]*30
+            crossover2=[0]*30
             
-            crosover1[0]=cromosoma_nuevo_1[0]
-            crosover2[0]=cromosoma_nuevo_2[0]
+            crossover1[0]=cromosoma_nuevo_1[0]
+            crossover2[0]=cromosoma_nuevo_2[0]
             
             for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
-                crosover1[x]=cromosoma_nuevo_2[x]
-                crosover2[x]=cromosoma_nuevo_1[x]
+                crossover1[x]=cromosoma_nuevo_2[x]
+                crossover2[x]=cromosoma_nuevo_1[x]
             #print("crosover")
             #print(crosover1)
             #print(crosover2)
             for m in range(cantidad_genes):
-                cromosoma_nuevo_1[x]=crosover1[m]
-                cromosoma_nuevo_2[x]=crosover2[m]
+                cromosoma_nuevo_1[x]=crossover1[m]
+                cromosoma_nuevo_2[x]=crossover2[m]
             #print("crosover copiado")
             #print(cromosoma_nuevo_1)
            # print(cromosoma_nuevo_2)
@@ -167,66 +167,66 @@ def crearHijos():
 def crearHijos_elite():
     crearlistahijos_elite()
     fitness_elite=sorted(fitness,reverse=True)
-    lista_porcentajes_elite=[]
+    lista_porcentajes=[]
     cromosoma_nuevo_1=[0]*30
     cromosoma_nuevo_2=[0]*30
-    lista_porcentajes_elite= crearRuleta()
+    lista_porcentajes= crearRuleta()
     mejor1=fitness_elite[0]
     mejor2=fitness_elite[1]
     for i in range(len(fitness)):
         if (fitness[i]==mejor1):
-            hijos[0]=cromosomas_binario[i]
+            hijos_elite[0]=cromosomas_binario_elite[i]
         elif (fitness[i]==mejor2):
-            hijos[1]=cromosomas_binario[i]
+            hijos_elite[1]=cromosomas_binario_elite[i]
     #print(lista_porcentajes)
     cont=0
     for i in range (0,8):
-        y=randint(0,len(lista_porcentajes_elite)-1)
-        x= randint(0,len(lista_porcentajes_elite)-1)
+        y=randint(0,len(lista_porcentajes)-1)
+        x= randint(0,len(lista_porcentajes)-1)
         for w in range(cantidad_genes):
-            cromosoma_nuevo_1[w]=cromosomas_binario[lista_porcentajes_elite[x]][w]
-            cromosoma_nuevo_2[w]=cromosomas_binario[lista_porcentajes_elite[y]][w]
+            cromosoma_nuevo_1[w]=cromosomas_binario[lista_porcentajes[x]][w]
+            cromosoma_nuevo_2[w]=cromosomas_binario[lista_porcentajes[y]][w]
         #print("cromosoma nuevo 1",cromosoma_nuevo_1)
         #print("cromosoma nuevo 2",cromosoma_nuevo_2)
 
         if (random() <= prob_cross): 
-            crosover1=[5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]
-            crosover2=[5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]
-            
-            crosover1[0]=cromosoma_nuevo_1[0]
-            crosover2[0]=cromosoma_nuevo_2[0]
-            
+            crossover1=[0]*30
+            crossover2=[0]*30
+                
+            crossover1[0]=cromosoma_nuevo_1[0]
+            crossover2[0]=cromosoma_nuevo_2[0]
+                
             for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
-                crosover1[x]=cromosoma_nuevo_2[x]
-                crosover2[x]=cromosoma_nuevo_1[x]
-            #print("crosover")
-            #print(crosover1)
-            #print(crosover2)
+                crossover1[x]=cromosoma_nuevo_2[x]
+                crossover2[x]=cromosoma_nuevo_1[x]
+                #print("crosover")
+                #print(crosover1)
+                #print(crosover2)
             for m in range(cantidad_genes):
-                cromosoma_nuevo_1[x]=crosover1[m]
-                cromosoma_nuevo_2[x]=crosover2[m]
-            #print("crosover copiado")
-            #print(cromosoma_nuevo_1)
-           # print(cromosoma_nuevo_2)
+                cromosoma_nuevo_1[x]=crossover1[m]
+                cromosoma_nuevo_2[x]=crossover2[m]
+                #print("crosover copiado")
+                #print(cromosoma_nuevo_1)
+            # print(cromosoma_nuevo_2)
 
         if (random() <= prob_mut):
             x=randint(0,29)
             valor1=cromosoma_nuevo_1[x] #busco el valor 1 o 0 en esa posicion
             if (valor1==1):
-             cromosoma_nuevo_1[x]=0
+                cromosoma_nuevo_1[x]=0
             else:
                 cromosoma_nuevo_1[x]=1
-            #print("mutacion  crosoma 1", x)
-            #print(cromosoma_nuevo_1)
+                #print("mutacion  crosoma 1", x)
+                #print(cromosoma_nuevo_1)
         if (random() <= prob_mut):
             x=randint(0,29)
             valor1=cromosoma_nuevo_2[x] #busco el valor 1 o 0 en esa posicion
             if (valor1==1):
-             cromosoma_nuevo_2[x]=0
+                cromosoma_nuevo_2[x]=0
             else:
                 cromosoma_nuevo_2[x]=1
-            #print("mutacion  crosoma 2", x)
-            #print(cromosoma_nuevo_2)
+                #print("mutacion  crosoma 2", x)
+                #print(cromosoma_nuevo_2)
         hijos_elite[i+2]=cromosoma_nuevo_1
         hijos_elite[i+2]=cromosoma_nuevo_2  
 def limpiar(): 
@@ -268,7 +268,7 @@ for x in range(corridas):
             cromosomas_binario[j][s]=hijos[j][s]     
     print("promedio", promFO) 
 print()
-
+#fitness.clear()
 for x in range(corridas):
     convertirDecimal(cromosomas_binario_elite)
     calcularFuncionObjetivo()
@@ -293,6 +293,5 @@ for x in range(corridas):
     crearHijos_elite()
     for j in range(cantidad_pi):
         for s in range(cantidad_genes):
-            cromosomas_binario[j][s]=hijos[j][s] 
+            cromosomas_binario_elite[j][s]=hijos_elite[j][s] 
     print("promedio elite", promFO)    
-
