@@ -1,5 +1,7 @@
 from random import randint
 from random import random
+from os import remove
+import matplotlib.pyplot as plt
 
 #variables
 cantidad_pi=10
@@ -25,6 +27,19 @@ hijos_elite=[]
 hijos_rango=[]
 fitness_elite=[]
 fitness_rango=[]
+promedios=[]
+lista_cromosomas_maximo=[]
+maximos=[]
+minimos=[]
+lista_crom_max_elite=[]
+maximos_elite=[]
+minimos_elite=[]
+promedios_elite=[]
+lista_crom_max_rango=[]
+maximos_rango=[]
+minimos_rango=[]
+promedios_rango=[]
+
 
 def crearPoblacionBinario():
  for x in range(cantidad_pi):
@@ -294,98 +309,154 @@ def crearHijos_rango():
       
     hijos_rango[8]=cromosoma_nuevo_1
     hijos_rango[9]=cromosoma_nuevo_2  
-def limpiar(): 
-    lista_funcion_obj.clear()
-    sumaFO=0
-    maxFO=0
-    minFO=0
-    promFO=0
-    cromosoma_maximo.clear()
-    cromosoma_maximo_decimal=0
-    fitness.clear()                 
-    
+                
+    lista = ['uno', 'dos', 'tres']
+mi_path = "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\fichero.txt"
 
 #main
 crearListas()
 crearPoblacionBinario()
+remove(mi_path)
 for x in range(corridas):
     convertirDecimal(cromosomas_binario)
     calcularFuncionObjetivo()
     calcularValores(cromosomas_binario)
     sumaFO=lista_funcion_obj[10]
     maxFO=lista_funcion_obj[11]
+    max_str=str(maxFO)
+    maximos.append(max_str)
     pos=lista_funcion_obj[12]
     for q in range(cantidad_genes):
         cromosoma_maximo[q]=cromosomas_binario[pos][q]
     cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
+    crom_str=str(cromosoma_maximo_decimal)
+    lista_cromosomas_maximo.append(crom_str)
     minFO=lista_funcion_obj[13]
+    min_str=str(minFO)
+    minimos.append(min_str)
     promFO= lista_funcion_obj[14]
-
-    '''print("corrida",x+1)
-    
-    print("maximo FO", maxFO)
-    print("minimo FO", minFO)
-    print("cromosoma binario maximo", cromosoma_maximo)
-    print("cromosoma decimal maximo ", cromosoma_maximo_decimal)'''
-    
     calcular_fitness()
     crearHijos()
     for j in range(cantidad_pi):
         for s in range(cantidad_genes):
             cromosomas_binario[j][s]=hijos[j][s]     
-    print("promedio", promFO) 
-print()
-#fitness.clear()
+    prom_str=str(promFO)
+    promedios.append(prom_str) 
+    plt.plot(promedios)
+    plt.plot(maximos)
+    plt.plot(minimos)
+    plt.xlabel('Corridas')
+    plt.ylabel('Valores')
+plt.show()
+
+
+    
 for x in range(corridas):
     convertirDecimal(cromosomas_binario_elite)
     calcularFuncionObjetivo()
     calcularValores(cromosomas_binario_elite)
     sumaFO=lista_funcion_obj[10]
     maxFO=lista_funcion_obj[11]
+    max_str=str(maxFO)
+    maximos_elite.append(max_str)
     pos=lista_funcion_obj[12]
     for q in range(cantidad_genes):
         cromosoma_maximo[q]=cromosomas_binario_elite[pos][q]
     cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
+    crom_str=str(cromosoma_maximo_decimal)
+    lista_crom_max_elite.append(crom_str)
     minFO=lista_funcion_obj[13]
+    min_str=str(minFO)
+    minimos_elite.append(min_str)
     promFO= lista_funcion_obj[14]
-
-    '''print("corrida",x+1)
-    
-    print("maximo FO", maxFO)
-    print("minimo FO", minFO)
-    print("cromosoma binario maximo", cromosoma_maximo)
-    print("cromosoma decimal maximo ", cromosoma_maximo_decimal)'''
-    
+    prom_str=str(promFO)
+    promedios_elite.append(prom_str)
     calcular_fitness()
     crearHijos_elite()
     for j in range(cantidad_pi):
         for s in range(cantidad_genes):
             cromosomas_binario_elite[j][s]=hijos_elite[j][s] 
-    print("promedio elite", promFO)    
-print()
+    
 for x in range(corridas):
     convertirDecimal(cromosomas_binario_rango)
     calcularFuncionObjetivo()
     calcularValores(cromosomas_binario_rango)
     sumaFO=lista_funcion_obj[10]
     maxFO=lista_funcion_obj[11]
+    max_str=str(maxFO)
+    maximos_rango.append(max_str)
     pos=lista_funcion_obj[12]
     for q in range(cantidad_genes):
         cromosoma_maximo[q]=cromosomas_binario_rango[pos][q]
     cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
+    crom_str=str(maxFO)
+    lista_crom_max_rango.append(crom_str)
     minFO=lista_funcion_obj[13]
+    min_str=str(min_str)
+    minimos_rango.append(min_str)
     promFO= lista_funcion_obj[14]
-
-    '''print("corrida",x+1)
-    
-    print("maximo FO", maxFO)
-    print("minimo FO", minFO)
-    print("cromosoma binario maximo", cromosoma_maximo)
-    print("cromosoma decimal maximo ", cromosoma_maximo_decimal)'''
-    
+    prom_str=str(promFO)
+    promedios_rango.append(prom_str)
     calcular_fitness()
     crearHijos_rango()
     for j in range(cantidad_pi):
         for s in range(cantidad_genes):
             cromosomas_binario_rango[j][s]=hijos_rango[j][s] 
-    print("promedio con metodo rango ", promFO)    
+       
+
+with open(mi_path, 'a+') as f:
+    f.write('CORRIDA')
+    f.write('               ')
+    f.write('PROMEDIO')
+    f.write('                     ')
+    f.write('MAXIMO')
+    f.write('                     ')
+    f.write('CROMOSOMA MAXIMO')
+    f.write('                     ')
+    f.write('MINIMO')
+    f.write('                     ')
+    f.write('PROMEDIO ELITE')
+    f.write('                     ')
+    f.write('MAXIMO ELITE')
+    f.write('               ')
+    f.write('CROMOSOMA MAX ELITE')
+    f.write('               ')
+    f.write('MINIMO ELITE')
+    f.write('                ')
+    f.write('PROMEDIO RANGO')
+    f.write('                ')
+    f.write('MAXIMO RANGO')
+    f.write('                ')
+    f.write('CROMOSOMA MAXRANGO')
+    f.write('                 ')
+    f.write('MINIMO RANGO')
+    f.write('\n')
+    f.write('-')
+    f.write('\n')
+    for i in range(corridas):
+        f.write(str(i+1))
+        f.write('               ')
+        f.write(promedios[i])
+        f.write('               ')
+        f.write(maximos[i])
+        f.write('               ')
+        f.write(lista_cromosomas_maximo[i])
+        f.write('               ')
+        f.write(minimos[i])
+        f.write('               ')
+        f.write(promedios_elite[i])
+        f.write('               ')
+        f.write(maximos_elite[i])
+        f.write('               ')
+        f.write(lista_crom_max_elite[i])
+        f.write('               ')
+        f.write(minimos_elite[i])
+        f.write('               ')
+        f.write(promedios_rango[i])
+        f.write('               ')
+        f.write(maximos_rango[i])
+        f.write('               ')
+        f.write(lista_crom_max_rango[i])
+        f.write('               ')
+        f.write(minimos_rango[i])
+        f.write('\n')
