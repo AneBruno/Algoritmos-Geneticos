@@ -22,7 +22,7 @@ prob_cross=0.75
 prob_mut=0.05
 punto_corte = 1
 hijos=[]
-corridas=30
+corridas=20
 hijos_elite=[]
 hijos_rango=[]
 fitness_elite=[]
@@ -310,13 +310,13 @@ def crearHijos_rango():
     hijos_rango[8]=cromosoma_nuevo_1
     hijos_rango[9]=cromosoma_nuevo_2  
                 
-    lista = ['uno', 'dos', 'tres']
-mi_path = "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\fichero.txt"
+    #lista = ['uno', 'dos', 'tres']
+mi_path = "C:\\Users\\PATRI\\Documents\\Algoritmos-Geneticos\\fichero.txt"
 
 #main
 crearListas()
 crearPoblacionBinario()
-remove(mi_path)
+#remove(mi_path)
 for x in range(corridas):
     convertirDecimal(cromosomas_binario)
     calcularFuncionObjetivo()
@@ -342,11 +342,13 @@ for x in range(corridas):
             cromosomas_binario[j][s]=hijos[j][s]     
     prom_str=str(promFO)
     promedios.append(prom_str) 
-    plt.plot(promedios)
-    plt.plot(maximos)
-    plt.plot(minimos)
+    x1 = range(0, len(promedios))
+    plt.plot(x1, [promedios for i in x1])
+    plt.plot(x1,[maximos for i in x1])
+    plt.plot(x1,[minimos for i in x1])
     plt.xlabel('Corridas')
     plt.ylabel('Valores')
+#plt.legend(loc="upper right")
 plt.show()
 
 
