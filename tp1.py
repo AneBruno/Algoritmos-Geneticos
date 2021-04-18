@@ -4,7 +4,7 @@ from random import random
 n=0
 cantidad_pi=10
 cantidad_genes=30
-cantidad_ciclos=20
+cantidad_ciclos=100
 cromosomas_binario=[]
 cromosomas_decimal=[]
 lista_funcion_obj=[]
@@ -22,7 +22,7 @@ fitness_elite=[]
 hijos_elite=[]
 fitness_rango=[]
 hijos_rango=[]
-
+hijos_m=[]
 
 
 def crearPoblacionBinario():
@@ -31,6 +31,12 @@ def crearPoblacionBinario():
     for j in range(cantidad_genes):
         n=randint(0,1)
         cromosomas_binario[x].append(n) 
+
+def crearlistahijos():
+    for x in range(cantidad_pi):
+        hijos_m.append([])
+        for j in range(cantidad_genes):
+            hijos_m[x].append(0)
 
 def crearLista(a,lista):
     for x in range(a):
@@ -81,7 +87,7 @@ def porcentajes(lista_porcentajes):
                 break
     return acum
 
-def hacer_crossover():
+def hacer_crossover(acum):
     #crearLista(cantidad_genes,cromosomas_hijo)
     padre1=[]
     padre2=[]
@@ -240,7 +246,15 @@ def generar_pob_rango():
     hijos_rango[8]=cromosoma_nuevo_1
     hijos_rango[9]=cromosoma_nuevo_2  
             
-
+def pasar_poblacion():
+    x_pob =[]
+    for i in range (cantidad_pi):
+        crearlistahijos()
+        x_pob = list(hijos[i])
+        #print (x_pob)
+        for j in range(cantidad_genes):
+            cromosomas_binario[i][j] = x_pob[j]
+    
 #MAIN
 crearLista(cantidad_pi, cromosomas_decimal)
 crearLista(cantidad_pi,fitness)
@@ -251,40 +265,32 @@ crearLista(cantidad_pi,fitness_elite)
 crearLista(cantidad_pi,hijos_elite) 
 crearLista(cantidad_pi, fitness_rango) 
 crearLista(cantidad_pi,hijos_rango) 
-#creando y cargando la matriz de cromosomas (poblacion inicial)
-crearPoblacionBinario()
-#mostrando las matriz binaria
-print("POBLACION INICIAL BINARIA")
-for x in range(10):
-    for j in range(30):
-        print(cromosomas_binario[x][j],end=" ")
-    print()
-convertirDecimal()
-#mostrando decimal 
-print("\nPOBLACION INICIAL EL DECIMALES")  
-for x in range(10):
-    print(cromosomas_decimal[x])
-#crear valores funcion objetivo (le agrego 3 lugares mas para guardar max, suma y promedio)
-#valores funcion objetivo
-for x in range(cantidad_pi):
-    lista_funcion_obj[x]= funcionObjetivo(cromosomas_decimal[x])
-#calcular suma promedio maximo minimo 
-nro_max=0
-calculaSPM()
-suma= lista_funcion_obj[10]
-maxi= lista_funcion_obj[11]
-nro_max= lista_funcion_obj[12]
-prom = lista_funcion_obj[13]
-mini= lista_funcion_obj[14]
-calcular_fitness(suma,maxi,prom)
-acum= porcentajes(lista_porcentajes)
-hacer_crossover()
-#ELITISMO 
-generar_pob_elite()
-#Otro metodo de seleccion - RANGO 
-generar_pob_rango()
 
-print('\nFUNCION OBJETIVO')
+
+crearPoblacionBinario()
+for i in range (cantidad_ciclos):
+    convertirDecimal()
+    for x in range(cantidad_pi):
+        lista_funcion_obj[x]= funcionObjetivo(cromosomas_decimal[x])
+    nro_max=0
+    calculaSPM()
+    suma= lista_funcion_obj[10]
+    maxi= lista_funcion_obj[11]
+    nro_max= lista_funcion_obj[12]
+    prom = lista_funcion_obj[13]
+    mini= lista_funcion_obj[14]
+    calcular_fitness(suma,maxi,prom)
+    acum= porcentajes(lista_porcentajes)
+    hacer_crossover(acum)
+    print('promedio',prom)
+    pasar_poblacion()
+    #ELITISMO 
+    #generar_pob_elite()
+    #Otro metodo de seleccion - RANGO 
+    #generar_pob_rango()
+    
+    
+'''print('\nFUNCION OBJETIVO')
 for i in range (10):
     print(lista_funcion_obj[i])
 
@@ -324,4 +330,4 @@ for i in range (len(hijos_elite)):
 
 print('\nPOBLACION HIJOS SELECCION RANGO')
 for i in range (len(hijos_rango)):
-    print(hijos_rango[i])
+    print(hijos_rango[i])'''
