@@ -1,333 +1,432 @@
 from random import randint
 from random import random
-
-n=0
+from os import remove
+import matplotlib.pyplot as plt
+import pandas as pd
+#variables
 cantidad_pi=10
 cantidad_genes=30
-cantidad_ciclos=100
 cromosomas_binario=[]
+cromosomas_binario_elite=[]
+cromosomas_binario_rango=[]
 cromosomas_decimal=[]
 lista_funcion_obj=[]
-lista_porcentajes=[]
+sumaFO=0
+maxFO=0
+minFO=0
+promFO=0
+cromosoma_maximo=[]
+cromosoma_maximo_decimal=0
 fitness=[]
 prob_cross=0.75
 prob_mut=0.05
-padres=[]
-probabilidades=[]
-cromosomas_hijo=[]
 punto_corte = 1
-hijos=[] #tiene la nueva poblacion, con crossover o con mutación
-poblacion_elite=[]
-fitness_elite=[]
+hijos=[]
+corridas=200
 hijos_elite=[]
-fitness_rango=[]
 hijos_rango=[]
-hijos_m=[]
+fitness_elite=[]
+fitness_rango=[]
+promedios=[]
+lista_cromosomas_maximo=[]
+maximos=[]
+minimos=[]
+lista_crom_max_elite=[]
+maximos_elite=[]
+minimos_elite=[]
+promedios_elite=[]
+lista_crom_max_rango=[]
+maximos_rango=[]
+minimos_rango=[]
+promedios_rango=[]
 
 
 def crearPoblacionBinario():
  for x in range(cantidad_pi):
+    cromosomas_binario_elite.append([])
+    cromosomas_binario_rango.append([])
     cromosomas_binario.append([])
     for j in range(cantidad_genes):
         n=randint(0,1)
-        cromosomas_binario[x].append(n) 
-
+        cromosomas_binario_rango[x].append(n)
+        cromosomas_binario_elite[x].append(n)
+        cromosomas_binario[x].append(n)
 def crearlistahijos():
     for x in range(cantidad_pi):
-        hijos_m.append([])
+        hijos.append([])
         for j in range(cantidad_genes):
-            hijos_m[x].append(0)
-
-def crearLista(a,lista):
-    for x in range(a):
-        lista.append(None)
-
-def convertirDecimal():
+            hijos[x].append(0)
+def crearlistahijos_elite():
+    for x in range(cantidad_pi):
+        hijos_elite.append([])
+        for j in range(cantidad_genes):
+            hijos_elite[x].append(0)
+def crearlistahijos_rango():
+    for x in range(cantidad_pi):
+        hijos_rango.append([])
+        for j in range(cantidad_genes):
+            hijos_rango[x].append(0)
+def convertirDecimal(lista_bin):
     for x in range(cantidad_pi):
         suma=0
         for j in range(cantidad_genes):
-            if cromosomas_binario[x][j]==1:
+            if lista_bin[x][j]==1:
                 suma+=(2**(cantidad_genes-(j+1)))
         cromosomas_decimal[x]=suma
-
+def crearListas():
+    crearLista(10,cromosomas_decimal)
+    crearLista(15,lista_funcion_obj)
+    crearLista(30,cromosoma_maximo)
+    crearLista(10,fitness)
+    crearLista(10,fitness_elite)
+    crearLista(10,fitness_rango)
+def crearLista(a,lista):
+    for x in range(a):
+        lista.append(None)   
+def calcularFuncionObjetivo():
+    aux=0
+    i=0
+    for i in range(cantidad_pi):
+        aux= funcionObjetivo(cromosomas_decimal[i])
+        lista_funcion_obj[i]=aux 
 def funcionObjetivo(a):
   return  (a/((2**30)-1))**2
-
-def calculaSPM():
+def calcularValores(lista_bin):
     suma=0
-    maxi=lista_funcion_obj[0]
-    mini=lista_funcion_obj[0]
+    maxi= lista_funcion_obj[0]
+    maxc=lista_bin[0]
+    mini= lista_funcion_obj[0]
+    minc=lista_bin[0]
     for x in range(cantidad_pi):
-        suma+=lista_funcion_obj[x]
-        if (lista_funcion_obj[x]>= maxi):
+        suma=suma + lista_funcion_obj[x]
+        if(lista_funcion_obj[x]>=maxi):
             maxi=lista_funcion_obj[x]
-            nro_max=cromosomas_decimal[x] #el nro decimal que me genera el valor de f. objt. mas grande lo guardo en nro_max
-        if (lista_funcion_obj[x]<= mini):
+            pos=x
+        if(lista_funcion_obj[x]<= mini):
             mini=lista_funcion_obj[x]
-    lista_funcion_obj[cantidad_pi]=suma
-    lista_funcion_obj[cantidad_pi+1]=maxi
-    lista_funcion_obj[cantidad_pi+2]=nro_max
-    lista_funcion_obj[cantidad_pi+3]= (suma/cantidad_pi)
-    lista_funcion_obj[cantidad_pi+4]= mini
-
-#calculo el fitness de cada cromosoma 
-def calcular_fitness(suma,maxi,mini):
-    for i in range(10):
-        x= (lista_funcion_obj[i]/suma)
+    
+    lista_funcion_obj[10]=suma
+    lista_funcion_obj[11]=maxi
+    lista_funcion_obj[12]=pos
+    lista_funcion_obj[13]=mini
+    lista_funcion_obj[14]=(suma/cantidad_pi)
+def calcular_fitness():
+    for i in range(cantidad_pi):
+        x= (lista_funcion_obj[i]/sumaFO)
         fitness[i] = x
-
-def porcentajes(lista_porcentajes):
+def crearRuleta():
+    ruleta=[]
     acum=0
     for i in range(10):
         porc= fitness[i]*100
         for j in range(round(porc)):
-            lista_porcentajes[acum] = i
+            ruleta.append(i)
             acum+=1
-            if(acum==100):
-                break
-    return acum
-
-def hacer_crossover(acum):
-    #crearLista(cantidad_genes,cromosomas_hijo)
-    padre1=[]
-    padre2=[]
+    return ruleta
+def crearHijos():
+    crearlistahijos()
+    lista_porcentajes=[]
+    cromosoma_nuevo_1=[0]*30
+    cromosoma_nuevo_2=[0]*30
+    lista_porcentajes= crearRuleta()
+    #print(lista_porcentajes)
+    cont=0
     for i in range (0,int(len(cromosomas_decimal)/2)):
-        x= randint(0,acum)
-        cromosoma_nuevo_1=cromosomas_binario[lista_porcentajes[x]]
-        y=randint(0,acum)
-        cromosoma_nuevo_2=cromosomas_binario[lista_porcentajes[y]]
-        '''print('padre1')
-        print(cromosoma_nuevo_1)
-        print('padre2')
-        print(cromosoma_nuevo_2)'''
-        
+        y=randint(0,len(lista_porcentajes)-1)
+        x= randint(0,len(lista_porcentajes)-1)
+        for w in range(cantidad_genes):
+            cromosoma_nuevo_1[w]=cromosomas_binario[lista_porcentajes[x]][w]
+            cromosoma_nuevo_2[w]=cromosomas_binario[lista_porcentajes[y]][w]
+        #print("cromosoma nuevo 1",cromosoma_nuevo_1)
+        #print("cromosoma nuevo 2",cromosoma_nuevo_2)
+
         if (random() <= prob_cross): 
-            aux=[]
-            crearLista(30,aux)            
-            for x in range (0,len(padre2)):
-                aux[x] = cromosoma_nuevo_2[x]
-            for x in range (punto_corte,len(padre2)):  #crossover desde el punto corte hasta fin
-                cromosoma_nuevo_2[x] = cromosoma_nuevo_1[x]
-                cromosoma_nuevo_1[x] = aux[x]
-            '''print('hijo1')
-            print(cromosoma_nuevo_1)
-            print('hijo2')
-            print(cromosoma_nuevo_2)'''
+            crossover1=[0]*30
+            crossover2=[0]*30
             
+            crossover1[0]=cromosoma_nuevo_1[0]
+            crossover2[0]=cromosoma_nuevo_2[0]
+            
+            for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
+                crossover1[x]=cromosoma_nuevo_2[x]
+                crossover2[x]=cromosoma_nuevo_1[x]
+            #print("crosover")
+            #print(crosover1)
+            #print(crosover2)
+            for m in range(cantidad_genes):
+                cromosoma_nuevo_1[x]=crossover1[m]
+                cromosoma_nuevo_2[x]=crossover2[m]
+            #print("crosover copiado")
+            #print(cromosoma_nuevo_1)
+           # print(cromosoma_nuevo_2)
+
         if (random() <= prob_mut):
             x=randint(0,29)
             valor1=cromosoma_nuevo_1[x] #busco el valor 1 o 0 en esa posicion
             if (valor1==1):
-                cromosoma_nuevo_1[x]==0
+             cromosoma_nuevo_1[x]=0
             else:
-                cromosoma_nuevo_1[x]==1
-
+                cromosoma_nuevo_1[x]=1
+            #print("mutacion  crosoma 1", x)
+            #print(cromosoma_nuevo_1)
         if (random() <= prob_mut):
-            y=randint(0,29)
-            valor2=cromosoma_nuevo_2[y]
-            if(valor2==1):
-                cromosoma_nuevo_2[y]==0
+            x=randint(0,29)
+            valor1=cromosoma_nuevo_2[x] #busco el valor 1 o 0 en esa posicion
+            if (valor1==1):
+             cromosoma_nuevo_2[x]=0
             else:
-                cromosoma_nuevo_2==1
+                cromosoma_nuevo_2[x]=1
+            #print("mutacion  crosoma 2", x)
+            #print(cromosoma_nuevo_2)
 
-        hijos.append(cromosoma_nuevo_1)
-        hijos.append(cromosoma_nuevo_2)              
+        hijos[cont]=cromosoma_nuevo_1
+        #print("hijo final ",hijos[cont])
+        cont+=1
+        hijos[cont]=cromosoma_nuevo_2
+        #print("hijo final", hijos[cont])
+        cont+=1   
 
-def generar_pob_elite():
+def crearHijos_elite():
+    crearlistahijos_elite()
     fitness_elite=sorted(fitness,reverse=True)
-    #test
+    lista_porcentajes=[]
+    cromosoma_nuevo_1=[0]*30
+    cromosoma_nuevo_2=[0]*30
+    lista_porcentajes= crearRuleta()
     mejor1=fitness_elite[0]
     mejor2=fitness_elite[1]
     for i in range(len(fitness)):
         if (fitness[i]==mejor1):
-            hijos_elite[0]=cromosomas_binario[i]
+            hijos_elite[0]=cromosomas_binario_elite[i]
         elif (fitness[i]==mejor2):
-            hijos_elite[1]=cromosomas_binario[i]
-    '''print('padre elite 1')
-    print(hijos_elite[0])
-    print ('padre elite 2')
-    print(hijos_elite[1])'''
-
-    #elijo solo 8 porque dos son los padres (int(len(cromosomas_decimal)/2)-2)
+            hijos_elite[1]=cromosomas_binario_elite[i]
+    #print(lista_porcentajes)
+    cont=0
     for i in range (0,8):
-        x= randint(0,acum)
-        cromosoma_nuevo_1=cromosomas_binario[lista_porcentajes[x]]
-        y=randint(0,acum)
-        cromosoma_nuevo_2=cromosomas_binario[lista_porcentajes[y]]
-        '''print('padre1')
-        print(cromosoma_nuevo_1)
-        print('padre2')
-        print(cromosoma_nuevo_2)'''
-        
+        y=randint(0,len(lista_porcentajes)-1)
+        x= randint(0,len(lista_porcentajes)-1)
+        for w in range(cantidad_genes):
+            cromosoma_nuevo_1[w]=cromosomas_binario[lista_porcentajes[x]][w]
+            cromosoma_nuevo_2[w]=cromosomas_binario[lista_porcentajes[y]][w]
+        #print("cromosoma nuevo 1",cromosoma_nuevo_1)
+        #print("cromosoma nuevo 2",cromosoma_nuevo_2)
+
         if (random() <= prob_cross): 
-            aux=[]
-            crearLista(30,aux)            
-            for x in range (30):
-                aux[x] = cromosoma_nuevo_2[x]
-            for x in range (punto_corte,29):  #crossover desde el punto corte hasta fin
-                cromosoma_nuevo_2[x] = cromosoma_nuevo_1[x]
-                cromosoma_nuevo_1[x] = aux[x]
-            '''print('hijo1')
-            print(cromosoma_nuevo_1)
-            print('hijo2')
-            print(cromosoma_nuevo_2)'''
-            
+            crossover1=[0]*30
+            crossover2=[0]*30
+                
+            crossover1[0]=cromosoma_nuevo_1[0]
+            crossover2[0]=cromosoma_nuevo_2[0]
+                
+            for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
+                crossover1[x]=cromosoma_nuevo_2[x]
+                crossover2[x]=cromosoma_nuevo_1[x]
+                #print("crosover")
+                #print(crosover1)
+                #print(crosover2)
+            for m in range(cantidad_genes):
+                cromosoma_nuevo_1[x]=crossover1[m]
+                cromosoma_nuevo_2[x]=crossover2[m]
+                #print("crosover copiado")
+                #print(cromosoma_nuevo_1)
+            # print(cromosoma_nuevo_2)
+
         if (random() <= prob_mut):
             x=randint(0,29)
             valor1=cromosoma_nuevo_1[x] #busco el valor 1 o 0 en esa posicion
             if (valor1==1):
-                cromosoma_nuevo_1[x]==0
+                cromosoma_nuevo_1[x]=0
             else:
-                cromosoma_nuevo_1[x]==1
-
+                cromosoma_nuevo_1[x]=1
+                #print("mutacion  crosoma 1", x)
+                #print(cromosoma_nuevo_1)
         if (random() <= prob_mut):
-            y=randint(0,29)
-            valor2=cromosoma_nuevo_2[y]
-            if(valor2==1):
-                cromosoma_nuevo_2[y]==0
+            x=randint(0,29)
+            valor1=cromosoma_nuevo_2[x] #busco el valor 1 o 0 en esa posicion
+            if (valor1==1):
+                cromosoma_nuevo_2[x]=0
             else:
-                cromosoma_nuevo_2==1
+                cromosoma_nuevo_2[x]=1
+                #print("mutacion  crosoma 2", x)
+                #print(cromosoma_nuevo_2)
         hijos_elite[i+2]=cromosoma_nuevo_1
         hijos_elite[i+2]=cromosoma_nuevo_2  
-      
-def generar_pob_rango():
+def crearHijos_rango():
+    crearlistahijos_rango()
     fitness_rango=sorted(fitness,reverse=True)
     mejores_rango=[]
     crearLista(cantidad_pi,mejores_rango)
+    
     for i in range(8):
         mejores_rango[i]=fitness_rango[i]
-
+    
     for i in range(8):
         for j in range(len(fitness)):
              if(mejores_rango[i]== fitness[j]):
-                hijos_rango[i]= cromosomas_binario[j]
-    print('MEJORES RANGO')
-    print(mejores_rango)
-            
-    x= randint(0,8)
-    cromosoma_nuevo_1=cromosomas_binario[lista_porcentajes[x]]
-    y=randint(0,8)
-    cromosoma_nuevo_2=cromosomas_binario[lista_porcentajes[y]]
-                
+                hijos_rango[i]= cromosomas_binario_rango[j]
+    lista_porcentajes=[]
+    cromosoma_nuevo_1=[0]*30
+    cromosoma_nuevo_2=[0]*30
+    lista_porcentajes= crearRuleta()
+    
+    y=randint(0,len(lista_porcentajes)-1)
+    x= randint(0,len(lista_porcentajes)-1)
+    for w in range(cantidad_genes):
+        cromosoma_nuevo_1[w]=cromosomas_binario_rango[lista_porcentajes[x]][w]
+        cromosoma_nuevo_2[w]=cromosomas_binario_rango[lista_porcentajes[y]][w]
+        #print("cromosoma nuevo 1",cromosoma_nuevo_1)
+        #print("cromosoma nuevo 2",cromosoma_nuevo_2)
+
     if (random() <= prob_cross): 
-        aux=[]
-        crearLista(30,aux)            
-        for x in range (30):
-            aux[x] = cromosoma_nuevo_2[x]
-        for x in range (punto_corte,29):  #crossover desde el punto corte hasta fin
-            cromosoma_nuevo_2[x] = cromosoma_nuevo_1[x]
-            cromosoma_nuevo_1[x] = aux[x]
-            '''print('hijo1')
-            print(cromosoma_nuevo_1)
-            print('hijo2')
-            print(cromosoma_nuevo_2)'''
-                    
+        crossover1=[0]*30
+        crossover2=[0]*30
+                
+        crossover1[0]=cromosoma_nuevo_1[0]
+        crossover2[0]=cromosoma_nuevo_2[0]
+                
+        for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
+            crossover1[x]=cromosoma_nuevo_2[x]
+            crossover2[x]=cromosoma_nuevo_1[x]
+                
+        for m in range(cantidad_genes):
+            cromosoma_nuevo_1[x]=crossover1[m]
+            cromosoma_nuevo_2[x]=crossover2[m]
+                
     if (random() <= prob_mut):
         x=randint(0,29)
         valor1=cromosoma_nuevo_1[x] #busco el valor 1 o 0 en esa posicion
         if (valor1==1):
-            cromosoma_nuevo_1[x]==0
+            cromosoma_nuevo_1[x]=0
         else:
-            cromosoma_nuevo_1[x]==1
-
-            if (random() <= prob_mut):
-                y=randint(0,29)
-                valor2=cromosoma_nuevo_2[y]
-            if(valor2==1):
-                cromosoma_nuevo_2[y]==0
-            else:
-                cromosoma_nuevo_2==1
-
-            '''print('padre elite 1')
-            print(hijos_elite[0])
-            print ('padre elite 2')
-            print(hijos_elite[1])'''
-
-    hijos_rango[8]=cromosoma_nuevo_1
-    hijos_rango[9]=cromosoma_nuevo_2  
+            cromosoma_nuevo_1[x]=1
             
-def pasar_poblacion():
-    x_pob =[]
-    for i in range (cantidad_pi):
-        crearlistahijos()
-        x_pob = list(hijos[i])
-        #print (x_pob)
-        for j in range(cantidad_genes):
-            cromosomas_binario[i][j] = x_pob[j]
-    
-#MAIN
-crearLista(cantidad_pi, cromosomas_decimal)
-crearLista(cantidad_pi,fitness)
-crearLista((cantidad_pi+5),lista_funcion_obj)
-crearLista(100,lista_porcentajes)
-crearLista(cantidad_pi,padres)
-crearLista(cantidad_pi,fitness_elite)
-crearLista(cantidad_pi,hijos_elite) 
-crearLista(cantidad_pi, fitness_rango) 
-crearLista(cantidad_pi,hijos_rango) 
+    if (random() <= prob_mut):
+        x=randint(0,29)
+        valor1=cromosoma_nuevo_2[x] #busco el valor 1 o 0 en esa posicion
+        if (valor1==1):
+            cromosoma_nuevo_2[x]=0
+        else:
+            cromosoma_nuevo_2[x]=1
+      
+    hijos_rango[8]=cromosoma_nuevo_1
+    hijos_rango[9]=cromosoma_nuevo_2 
+def graficar(prom,maxim,minim,tit,l1,l2,l3):
+    x1=range(1,(corridas+1))
+    plt.plot(x1,prom,label=l1)
+    plt.plot(x1,maxim,label=l2)
+    plt.plot(x1,minim,label=l3)
+    plt.ylim(0, 1.1)
+    plt.title(tit)
+    plt.xlabel('Corridas')
+    plt.ylabel('Valores Función Objetivo')
+    plt.legend()
+    plt.show()    
+ruta= "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\prueba.xlsx"
 
-
+crearListas()
 crearPoblacionBinario()
-for i in range (cantidad_ciclos):
-    convertirDecimal()
-    for x in range(cantidad_pi):
-        lista_funcion_obj[x]= funcionObjetivo(cromosomas_decimal[x])
-    nro_max=0
-    calculaSPM()
-    suma= lista_funcion_obj[10]
-    maxi= lista_funcion_obj[11]
-    nro_max= lista_funcion_obj[12]
-    prom = lista_funcion_obj[13]
-    mini= lista_funcion_obj[14]
-    calcular_fitness(suma,maxi,prom)
-    acum= porcentajes(lista_porcentajes)
-    hacer_crossover(acum)
-    print('promedio',prom)
-    pasar_poblacion()
-    #ELITISMO 
-    #generar_pob_elite()
-    #Otro metodo de seleccion - RANGO 
-    #generar_pob_rango()
+
+for x in range(corridas):
+    convertirDecimal(cromosomas_binario)
+    calcularFuncionObjetivo()
+    calcularValores(cromosomas_binario)
+    sumaFO=lista_funcion_obj[10]
+    maxFO=lista_funcion_obj[11]
+    #max_str=str(maxFO)
+    maximos.append(maxFO)
+    pos=lista_funcion_obj[12]
+    for q in range(cantidad_genes):
+        cromosoma_maximo[q]=cromosomas_binario[pos][q]
+    cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
+    #crom_str=str(cromosoma_maximo_decimal)
+    lista_cromosomas_maximo.append(cromosoma_maximo_decimal)
+    minFO=lista_funcion_obj[13]
+    #min_str=str(minFO)
+    minimos.append(minFO)
+    promFO= lista_funcion_obj[14]
+    calcular_fitness()
+    crearHijos()
+    for j in range(cantidad_pi):
+        for s in range(cantidad_genes):
+            cromosomas_binario[j][s]=hijos[j][s]     
+    #prom_str=str(promFO)
+    promedios.append(promFO) 
+
+for x in range(corridas):
+    convertirDecimal(cromosomas_binario_elite)
+    calcularFuncionObjetivo()
+    calcularValores(cromosomas_binario_elite)
+    sumaFO=lista_funcion_obj[10]
+    maxFO=lista_funcion_obj[11]
+    #max_str=str(maxFO)
+    maximos_elite.append(maxFO)
+    pos=lista_funcion_obj[12]
+    for q in range(cantidad_genes):
+        cromosoma_maximo[q]=cromosomas_binario_elite[pos][q]
+    cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
+    #crom_str=str(cromosoma_maximo_decimal)
+    lista_crom_max_elite.append(cromosoma_maximo_decimal)
+    minFO=lista_funcion_obj[13]
+    #min_str=str(minFO)
+    minimos_elite.append(minFO)
+    promFO= lista_funcion_obj[14]
+    #prom_str=str(promFO)
+    promedios_elite.append(promFO)
+    calcular_fitness()
+    crearHijos_elite()
+    for j in range(cantidad_pi):
+        for s in range(cantidad_genes):
+            cromosomas_binario_elite[j][s]=hijos_elite[j][s] 
     
-    
-'''print('\nFUNCION OBJETIVO')
-for i in range (10):
-    print(lista_funcion_obj[i])
+for x in range(corridas):
+    convertirDecimal(cromosomas_binario_rango)
+    calcularFuncionObjetivo()
+    calcularValores(cromosomas_binario_rango)
+    sumaFO=lista_funcion_obj[10]
+    maxFO=lista_funcion_obj[11]
+    #max_str=str(maxFO)
+    maximos_rango.append(maxFO)
+    pos=lista_funcion_obj[12]
+    for q in range(cantidad_genes):
+        cromosoma_maximo[q]=cromosomas_binario_rango[pos][q]
+    cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
+    #crom_str=str(maxFO)
+    lista_crom_max_rango.append(cromosoma_maximo_decimal)
+    minFO=lista_funcion_obj[13]
+    #min_str=str(minFO)
+    minimos_rango.append(minFO)
+    promFO= lista_funcion_obj[14]
+    #prom_str=str(promFO)
+    promedios_rango.append(promFO)
+    calcular_fitness()
+    crearHijos_rango()
+    for j in range(cantidad_pi):
+        for s in range(cantidad_genes):
+            cromosomas_binario_rango[j][s]=hijos_rango[j][s] 
+       
 
-print('\nSUMA:', end=" ") 
-print(suma)
-print('MAXIMO:', end=" ") 
-print(maxi)
-print('Cromosoma que genera el valor máximo:', end=" ") 
-print(nro_max)
-print('MINIMO:', end=" ") 
-print(mini)
-print('PROMEDIO:', end=" ") 
-print(prom)
+lista_excel = []
+lista_excel.append(list(range(1,corridas+1)))
+lista_excel.append(promedios)
+lista_excel.append(maximos)
+lista_excel.append(minimos)
+lista_excel.append(lista_cromosomas_maximo)
+lista_excel.append(promedios_elite)
+lista_excel.append(maximos_elite)
+lista_excel.append(minimos_elite)
+lista_excel.append(lista_crom_max_elite)
+lista_excel.append(promedios_rango)
+lista_excel.append(maximos_rango)
+lista_excel.append(minimos_rango)
+lista_excel.append(lista_crom_max_rango)
+df=pd.DataFrame(lista_excel)
+df = df.T
+df.columns = ['Corrida','Promedio','Maximo','Minimo','Cromosoma Máximo','Promedio Elite','Maximo Elite','Minimo Elite','Cromosoma Máximo Elite','Promedio Rango','Maximo Rango','Minimo Rango','Cromosoma Máximo Rango']
+with pd.ExcelWriter(ruta) as writer:
+    df.to_excel(writer, sheet_name='TP 1', index=False)
 
-print('\nFITNESS')
-for i in range (len(fitness)):
-    print(fitness[i])
-sumafitnees=0
-for i in range (len(fitness)):
-    sumafitnees+=fitness[i]
-print (sumafitnees)
-
-print('\nPOOL GENERADO:')
-print(lista_porcentajes)
-#print(len(lista_porcentajes))
-print('ACUMULADOR DEL POOL: ', end=" ")
-print(acum)
-#print(padres)
-#print(probabilidades)
-print('\nPOBLACION HIJOS SIN ELITE')
-for i in range (len(hijos)):
-    print(hijos[i])
-
-print('\nPOBLACION HIJOS ELITE')
-for i in range (len(hijos_elite)):
-    print(hijos_elite[i])
-
-print('\nPOBLACION HIJOS SELECCION RANGO')
-for i in range (len(hijos_rango)):
-    print(hijos_rango[i])'''
+graficar(promedios,maximos,minimos,"Sin Elite","Promedio","Máximo","Mínimo")
+if (corridas>20):
+    graficar(promedios_elite,maximos_elite,minimos_elite,"Con Elite","Promedio","Máximo","Mínimo")
+    graficar(promedios_rango,maximos_rango,minimos_rango,"Método de Selección por Rango","Promedio","Máximo","Mínimo")
+    graficar(promedios,promedios_elite,promedios_rango,"Comparación entre promedios","Sin Elite","Con Elite","Selección por Rango")
