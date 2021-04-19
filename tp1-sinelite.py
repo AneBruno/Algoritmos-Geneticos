@@ -2,7 +2,7 @@ from random import randint
 from random import random
 from os import remove
 import matplotlib.pyplot as plt
-
+import pandas as pd
 #variables
 cantidad_pi=10
 cantidad_genes=30
@@ -311,12 +311,12 @@ def crearHijos_rango():
     hijos_rango[9]=cromosoma_nuevo_2  
                 
     #lista = ['uno', 'dos', 'tres']
-mi_path = "C:\\Users\\PATRI\\Documents\\Algoritmos-Geneticos\\fichero.txt"
-
+mi_path = "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\fichero.txt"
+ruta= "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\prueba.xlsx"
 #main
 crearListas()
 crearPoblacionBinario()
-#remove(mi_path)
+remove(mi_path)
 for x in range(corridas):
     convertirDecimal(cromosomas_binario)
     calcularFuncionObjetivo()
@@ -342,17 +342,7 @@ for x in range(corridas):
             cromosomas_binario[j][s]=hijos[j][s]     
     prom_str=str(promFO)
     promedios.append(prom_str) 
-    x1 = range(0, len(promedios))
-    plt.plot(x1, [promedios for i in x1])
-    plt.plot(x1,[maximos for i in x1])
-    plt.plot(x1,[minimos for i in x1])
-    plt.xlabel('Corridas')
-    plt.ylabel('Valores')
-#plt.legend(loc="upper right")
-plt.show()
 
-
-    
 for x in range(corridas):
     convertirDecimal(cromosomas_binario_elite)
     calcularFuncionObjetivo()
@@ -462,3 +452,23 @@ with open(mi_path, 'a+') as f:
         f.write('               ')
         f.write(minimos_rango[i])
         f.write('\n')
+
+lista_excel = []
+lista_excel.append(list(range(1,corridas+1)))
+lista_excel.append(promedios)
+lista_excel.append(maximos)
+lista_excel.append(minimos)
+
+df=pd.DataFrame(lista_excel)
+df = df.T
+df.columns = ['Corrida','Promedio','Maximo','Minimo']
+with pd.ExcelWriter(ruta) as writer:
+    df.to_excel(writer, sheet_name='Sin Elite', index=False)
+
+plt.plot(promedios,label="Promedios")
+plt.plot(maximos,label="Maximos")
+plt.plot(minimos,label="Minimos")
+plt.xlabel('Corridas')
+plt.ylabel('Valores')
+plt.legend()
+plt.show()
