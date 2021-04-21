@@ -303,6 +303,7 @@ def guardar_excel():
     df.columns = ['Corrida','Promedio FO','Maximo FO','Minimo FO','Cromosoma Máximo','Promedio FO Elite','Maximo FO Elite','Minimo FO Elite','Cromosoma Máximo Elite','Promedio FO Rango','Maximo FO Rango','Minimo FO Rango','Cromosoma Máximo Rango']
     with pd.ExcelWriter(ruta) as writer:
         df.to_excel(writer, sheet_name='TP 1', index=False)   
+    print(df)
 #variables
 
 cantPoblacionInicial=10
