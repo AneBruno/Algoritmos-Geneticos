@@ -137,7 +137,7 @@ def crossover (poblacion):
         padre_2 = random.choice(ruleta)
                 
         if (random.random() <= prob_crossover): 
-               
+            puntoCorte=(np.random.randint(1,30))   
             aux = [0]*30               
             for x in range (0,len(padre_2)):
                 aux[x] = padre_2[x]
@@ -167,7 +167,7 @@ def crossover_elite (poblacion_elite):
         padre_2 = random.choice(ruleta)
                 
         if (random.random() <= prob_crossover): 
-               
+            puntoCorte=(np.random.randint(1,30))   
             aux = [0]*30               
             for x in range (0,len(padre_2)):
                 aux[x] = padre_2[x]
@@ -194,6 +194,7 @@ def crossover_rango (poblacion_rango):
     padre_2 = random.choice(ruleta)
                 
     if (random.random() <= prob_crossover): 
+        puntoCorte=(np.random.randint(1,30))
         aux = [0]*30               
         for x in range (0,len(padre_2)):
             aux[x] = padre_2[x]
