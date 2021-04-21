@@ -185,40 +185,52 @@ def crossover_elite (poblacion_elite):
     return hijos_elite
 
 def crossover_rango (poblacion_rango):
+        #----------RANGO--------------------
     poblacion_rango = sorted(poblacion_rango, key = lambda x : x.fitness, reverse=True) 
     hijos_rango=[]
-    hijos_rango.extend([poblacion_rango[0],poblacion_rango[1],poblacion_rango[2],poblacion_rango[3],poblacion_rango[4],poblacion_rango[5],poblacion_rango[6],poblacion_rango[7]])
+    for i in range(8):
+        hijos_rango.extend([poblacion_rango[i]])
     #-----------CROSSOVER----------------
-    ruleta = crearRuleta(poblacion_rango)
-    padre_1 = random.choice(ruleta)   
-    padre_2 = random.choice(ruleta)
-                
-    if (random.random() <= prob_crossover): 
-        puntoCorte=(np.random.randint(1,30))
-        aux = [0]*30               
+    rango = crearRango(poblacion_rango)
+    padre_1 = random.choice(rango)   
+    padre_2 = random.choice(rango)
+            
+    if (random.random() <= prob_crossover):
+        puntoCorte = (np.random.randint(1, 30))
+
+        aux= [0]*30  
+
         for x in range (0,len(padre_2)):
             aux[x] = padre_2[x]
 
-        for x in range (puntoCorte,len(padre_2)):  
+        for x in range (puntoCorte,len(padre_2)): 
             padre_2[x] = padre_1[x]
-            padre_1[x] = aux[x]
-      #---------MUTACION-----------------------  
+            padre_1[x] = aux[x] 
+    #---------MUTACION-----------------------  
     if (random.random() <= prob_mutacion): 
         padre_1 = hacerMutacion(padre_1)  
     if (random.random() <= prob_mutacion): 
         padre_2 = hacerMutacion(padre_2)
-       
+    
     hijos_rango.extend([Cromosoma_Rango(padre_1),Cromosoma_Rango(padre_2)])
     return hijos_rango
+
+
 #agrega n cantidad de veces un cromosoma binario segun el fitness
 # devuelve una lista 
-def crearRuleta(poblacion):
+def crearRuleta(p):
     ruleta=[]
     for x in range (0,cantPoblacionInicial):
-        aux=poblacion[x].getPosiciones()
+        aux=p[x].getPosiciones()
         for _ in range (0,aux):     
-            ruleta.extend([poblacion[x].getBinario()])
+            ruleta.extend([p[x].getBinario()])
     return ruleta
+def crearRango(poblacion_rango):
+    rango=[]
+    poblacion_rango = sorted(poblacion_rango, key = lambda x : x.fitness, reverse=True)
+    for x in range (8):    
+        rango.extend([poblacion_rango[x].getBinario()])
+    return rango
 # cambia un bit aleatorio del cromosoma por el opuesto 
 def hacerMutacion (padre):
     aux = [0]*30      
