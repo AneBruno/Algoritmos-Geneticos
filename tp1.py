@@ -20,9 +20,9 @@ cromosoma_maximo_decimal=0
 fitness=[]
 prob_cross=0.75
 prob_mut=0.05
-punto_corte = 1
+#punto_corte = 1
 hijos=[]
-corridas=200
+corridas=20
 hijos_elite=[]
 hijos_rango=[]
 fitness_elite=[]
@@ -39,7 +39,9 @@ lista_crom_max_rango=[]
 maximos_rango=[]
 minimos_rango=[]
 promedios_rango=[]
-
+lista_cromosomas_maximo_bin=[]
+lista_crom_max_bin_elite=[]
+lista_crom_max_bin_rango=[]
 
 def crearPoblacionBinario():
  for x in range(cantidad_pi):
@@ -73,6 +75,12 @@ def convertirDecimal(lista_bin):
             if lista_bin[x][j]==1:
                 suma+=(2**(cantidad_genes-(j+1)))
         cromosomas_decimal[x]=suma
+def binarizar(decimal):
+    binario = ''
+    while decimal // 2 != 0:
+        binario = str(decimal % 2) + binario
+        decimal = decimal // 2
+    return str(decimal) + binario
 def crearListas():
     crearLista(10,cromosomas_decimal)
     crearLista(15,lista_funcion_obj)
@@ -146,8 +154,8 @@ def crearHijos():
             
             crossover1[0]=cromosoma_nuevo_1[0]
             crossover2[0]=cromosoma_nuevo_2[0]
-            
-            for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
+            punto_corte=randint(0,cantidad_genes-1)
+            for x in range (1,30):  #crossover desde el punto corte hasta fin
                 crossover1[x]=cromosoma_nuevo_2[x]
                 crossover2[x]=cromosoma_nuevo_1[x]
             #print("crosover")
@@ -158,7 +166,7 @@ def crearHijos():
                 cromosoma_nuevo_2[x]=crossover2[m]
             #print("crosover copiado")
             #print(cromosoma_nuevo_1)
-           # print(cromosoma_nuevo_2)
+            #print(cromosoma_nuevo_2)
 
         if (random() <= prob_mut):
             x=randint(0,29)
@@ -185,7 +193,6 @@ def crearHijos():
         hijos[cont]=cromosoma_nuevo_2
         #print("hijo final", hijos[cont])
         cont+=1   
-
 def crearHijos_elite():
     crearlistahijos_elite()
     fitness_elite=sorted(fitness,reverse=True)
@@ -201,8 +208,8 @@ def crearHijos_elite():
         elif (fitness[i]==mejor2):
             hijos_elite[1]=cromosomas_binario_elite[i]
     #print(lista_porcentajes)
-    cont=0
-    for i in range (0,8):
+    cont=2
+    for i in range (0,4):
         y=randint(0,len(lista_porcentajes)-1)
         x= randint(0,len(lista_porcentajes)-1)
         for w in range(cantidad_genes):
@@ -217,7 +224,7 @@ def crearHijos_elite():
                 
             crossover1[0]=cromosoma_nuevo_1[0]
             crossover2[0]=cromosoma_nuevo_2[0]
-                
+            punto_corte=randint(0,cantidad_genes-1)    
             for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
                 crossover1[x]=cromosoma_nuevo_2[x]
                 crossover2[x]=cromosoma_nuevo_1[x]
@@ -249,8 +256,10 @@ def crearHijos_elite():
                 cromosoma_nuevo_2[x]=1
                 #print("mutacion  crosoma 2", x)
                 #print(cromosoma_nuevo_2)
-        hijos_elite[i+2]=cromosoma_nuevo_1
-        hijos_elite[i+2]=cromosoma_nuevo_2  
+        hijos_elite[cont]=cromosoma_nuevo_1
+        cont+=1
+        hijos_elite[cont]=cromosoma_nuevo_2 
+        cont+=1 
 def crearHijos_rango():
     crearlistahijos_rango()
     fitness_rango=sorted(fitness,reverse=True)
@@ -283,7 +292,7 @@ def crearHijos_rango():
                 
         crossover1[0]=cromosoma_nuevo_1[0]
         crossover2[0]=cromosoma_nuevo_2[0]
-                
+        punto_corte=randint(0,cantidad_genes-1)       
         for x in range (punto_corte,30):  #crossover desde el punto corte hasta fin
             crossover1[x]=cromosoma_nuevo_2[x]
             crossover2[x]=cromosoma_nuevo_1[x]
@@ -321,7 +330,7 @@ def graficar(prom,maxim,minim,tit,l1,l2,l3):
     plt.ylabel('Valores Función Objetivo')
     plt.legend()
     plt.show()    
-ruta= "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\prueba.xlsx"
+ruta= "C:\\Users\\Usuario\\Documents\\Algoritmos-Geneticos\\tp1.xlsx"
 
 crearListas()
 crearPoblacionBinario()
@@ -340,6 +349,8 @@ for x in range(corridas):
     cromosoma_maximo_decimal= cromosomas_decimal[lista_funcion_obj[12]]
     #crom_str=str(cromosoma_maximo_decimal)
     lista_cromosomas_maximo.append(cromosoma_maximo_decimal)
+    lista_cromosomas_maximo_bin.append(binarizar(cromosoma_maximo_decimal))
+    lista_cromosomas_maximo_bin
     minFO=lista_funcion_obj[13]
     #min_str=str(minFO)
     minimos.append(minFO)
@@ -403,14 +414,14 @@ for x in range(corridas):
     for j in range(cantidad_pi):
         for s in range(cantidad_genes):
             cromosomas_binario_rango[j][s]=hijos_rango[j][s] 
-       
-
+    
 lista_excel = []
 lista_excel.append(list(range(1,corridas+1)))
 lista_excel.append(promedios)
 lista_excel.append(maximos)
 lista_excel.append(minimos)
 lista_excel.append(lista_cromosomas_maximo)
+lista_excel.append(lista_cromosomas_maximo_bin)
 lista_excel.append(promedios_elite)
 lista_excel.append(maximos_elite)
 lista_excel.append(minimos_elite)
@@ -421,12 +432,14 @@ lista_excel.append(minimos_rango)
 lista_excel.append(lista_crom_max_rango)
 df=pd.DataFrame(lista_excel)
 df = df.T
-df.columns = ['Corrida','Promedio','Maximo','Minimo','Cromosoma Máximo','Promedio Elite','Maximo Elite','Minimo Elite','Cromosoma Máximo Elite','Promedio Rango','Maximo Rango','Minimo Rango','Cromosoma Máximo Rango']
+df.columns = ['Corrida','Promedio FO','Maximo FO','Minimo FO','Cromosoma Máximo','Cromosoma Máximo Bin','Promedio FO Elite','Maximo FO Elite','Minimo FO Elite','Cromosoma Máximo Elite','Promedio FO Rango','Maximo FO Rango','Minimo FO Rango','Cromosoma Máximo Rango']
 with pd.ExcelWriter(ruta) as writer:
     df.to_excel(writer, sheet_name='TP 1', index=False)
 
 graficar(promedios,maximos,minimos,"Sin Elite","Promedio","Máximo","Mínimo")
-if (corridas>20):
-    graficar(promedios_elite,maximos_elite,minimos_elite,"Con Elite","Promedio","Máximo","Mínimo")
-    graficar(promedios_rango,maximos_rango,minimos_rango,"Método de Selección por Rango","Promedio","Máximo","Mínimo")
-    graficar(promedios,promedios_elite,promedios_rango,"Comparación entre promedios","Sin Elite","Con Elite","Selección por Rango")
+#if (corridas>20):
+graficar(promedios_elite,maximos_elite,minimos_elite,"Con Elite","Promedio","Máximo","Mínimo")
+graficar(promedios_rango,maximos_rango,minimos_rango,"Método de Selección por Rango","Promedio","Máximo","Mínimo")
+graficar(promedios,promedios_elite,promedios_rango,"Comparación entre promedios","Sin Elite","Con Elite","Selección por Rango")
+
+print(df)
